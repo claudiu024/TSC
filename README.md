@@ -16,3 +16,5 @@ git config --global user.email "your_email_address@example.com"
 git config --global --list
 
 git config --global credential.helper store
+
+sa se gaseasca comanda care sa stearga credentialele salvate
