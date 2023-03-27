@@ -7,7 +7,7 @@
 
 module instr_register_test
   import instr_register_pkg::*;  // user-defined types are defined in instr_register_pkg.sv
-  (interface_n interface_i);
+  (tb_ifc.TEST i_tb_ifc);
 
   timeunit 1ns/1ns;
 
@@ -22,20 +22,20 @@ module instr_register_test
     $display(    "***********************************************************");
 
     $display("\nReseting the instruction register...");
-    interface_i.write_pointer  = 5'h00;         // initialize write pointer
-    interface_i.read_pointer   = 5'h1F;         // initialize read pointer
-    interface_i.load_en        = 1'b0;          // initialize load control line
-    interface_i.reset_n       <= 1'b0;          // assert reset_n (active low)
-    repeat (2) @(posedge interface_i.clk) ;     // hold in reset for 2 clock cycles
-    interface_i.reset_n        = 1'b1;          // deassert reset_n (active low)
+    i_tb_ifc.write_pointer  = 5'h00;         // initialize write pointer
+    i_tb_ifc.read_pointer   = 5'h1F;         // initialize read pointer
+    i_tb_ifc.load_en        = 1'b0;          // initialize load control line
+    i_tb_ifc.reset_n       <= 1'b0;          // assert reset_n (active low)
+    repeat (2) @(posedge i_tb_ifc.test_clk) ;     // hold in reset for 2 clock cycles
+    i_tb_ifc.reset_n        = 1'b1;          // deassert reset_n (active low)
 
     $display("\nWriting values to register stack...");
-    @(posedge interface_i.clk) interface_i.load_en = 1'b1;  // enable writing to register
+    @(posedge i_tb_ifc.test_clk) i_tb_ifc.load_en = 1'b1;  // enable writing to register
     repeat (NUMBEROFTRANSACTIONS) begin
-      @(posedge interface_i.clk) randomize_transaction;
-      @(negedge interface_i.clk) print_transaction;
+      @(posedge i_tb_ifc.test_clk) randomize_transaction;
+      @(negedge i_tb_ifc.test_clk) print_transaction;
     end
-    @(posedge interface_i.clk) interface_i.load_en = 1'b0;  // turn-off writing to register
+    @(posedge i_tb_ifc.test_clk) i_tb_ifc.load_en = 1'b0;  // turn-off writing to register
 
     // read back and display same three register locations
     $display("\nReading back the same register locations written...");
@@ -43,12 +43,12 @@ module instr_register_test
       // later labs will replace this loop with iterating through a
       // scoreboard to determine which addresses were written and
       // the expected values to be read back
-      @(posedge interface_i.clk) interface_i.read_pointer = i;
-      // interface_i.read_pointer <= $unsigned($random)%32;
-      @(negedge interface_i.clk) print_results;
+      @(posedge i_tb_ifc.test_clk) i_tb_ifc.read_pointer = i;
+      // i_tb_ifc.read_pointer <= $unsigned($random)%32;
+      @(negedge i_tb_ifc.test_clk) print_results;
     end
 
-    @(posedge interface_i.clk) ;
+    @(posedge i_tb_ifc.test_clk) ;
     $display("\n***********************************************************");
     $display(  "***  THIS IS NOT A SELF-CHECKING TESTBENCH (YET).  YOU  ***");
     $display(  "***  NEED TO VISUALLY VERIFY THAT THE OUTPUT VALUES     ***");
@@ -66,25 +66,25 @@ module instr_register_test
     // write_pointer values in a later lab
     //
     static int temp = 0;
-    interface_i.operand_a     <= $random(seed)%16;                 // between -15 and 15
-    interface_i.operand_b     <= $unsigned($random)%16;            // between 0 and 15
-    interface_i.opcode        <= opcode_t'($unsigned($random)%8);  // between 0 and 7, cast to opcode_t type
-    interface_i.write_pointer <= temp++;
-    // interface_i.write_pointer <= $unsigned($random)%32;
+    i_tb_ifc.operand_a     <= $random(seed)%16;                 // between -15 and 15
+    i_tb_ifc.operand_b     <= $unsigned($random)%16;            // between 0 and 15
+    i_tb_ifc.opcode        <= opcode_t'($unsigned($random)%8);  // between 0 and 7, cast to opcode_t type
+    i_tb_ifc.write_pointer <= temp++;
+    // i_tb_ifc.write_pointer <= $unsigned($random)%32;
   endfunction: randomize_transaction
 
   function void print_transaction;
-    $display("Writing to register location %0d: ", interface_i.write_pointer);
-    $display("  opcode = %0d (%s)", interface_i.opcode, interface_i.opcode.name);
-    $display("  operand_a = %0d",  interface_i. operand_a);
-    $display("  operand_b = %0d\n", interface_i.operand_b);
+    $display("Writing to register location %0d: ", i_tb_ifc.write_pointer);
+    $display("  opcode = %0d (%s)", i_tb_ifc.opcode, i_tb_ifc.opcode.name);
+    $display("  operand_a = %0d",  i_tb_ifc. operand_a);
+    $display("  operand_b = %0d\n", i_tb_ifc.operand_b);
   endfunction: print_transaction
 
   function void print_results;
-    $display("Read from register location %0d: ", interface_i.read_pointer);
-    $display("  opcode = %0d (%s)", interface_i.instruction_word.opc, interface_i.instruction_word.opc.name);
-    $display("  operand_a = %0d",   interface_i.instruction_word.op_a);
-    $display("  operand_b = %0d\n", interface_i.instruction_word.op_b);
+    $display("Read from register location %0d: ", i_tb_ifc.read_pointer);
+    $display("  opcode = %0d (%s)", i_tb_ifc.instruction_word.opc, i_tb_ifc.instruction_word.opc.name);
+    $display("  operand_a = %0d",   i_tb_ifc.instruction_word.op_a);
+    $display("  operand_b = %0d\n", i_tb_ifc.instruction_word.op_b);
   endfunction: print_results
 
 endmodule: instr_register_test

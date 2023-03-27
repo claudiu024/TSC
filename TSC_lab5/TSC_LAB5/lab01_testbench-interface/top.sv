@@ -7,28 +7,22 @@ module top;
 
   // user-defined types are defined in instr_register_pkg.sv
   import instr_register_pkg::*;
-
+  
   // clock variables
   logic clk;
   logic test_clk;
+  logic reset_n;
 
-  // // interconnecting signals
-  // logic          load_en;
-  // logic          reset_n;
-  // opcode_t       opcode;
-  // operand_t      operand_a, operand_b;
-  // address_t      write_pointer, read_pointer;
-  // instruction_t  instruction_word;
-interface_n interface_i(clk);
+tb_ifc i_tb_ifc(clk,test_clk);
 // interface_n interface_i2(test_clk);
   // instantiate testbench and connect ports
   instr_register_test test (
-    interface_i.TEST
+    i_tb_ifc
    );
 
   // instantiate design and connect ports
   instr_register dut (
-  interface_i.DUT
+  i_tb_ifc
    );
 
   // clock oscillators
