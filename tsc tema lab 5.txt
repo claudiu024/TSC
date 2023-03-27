@@ -1,0 +1,14 @@
+//write pointer ia valoarea random (0,31) si incremental
+//read  pointer ia valoarea random (0,31) si incremental
+
+4 cazuri
+1. wp - inc,
+   rp- inc, 
+2. wp - inc,
+   rp- rnd, 
+3. wp - rnd,
+   rp- inc, 
+4. wp - rnd,
+   rp- rnd, 
+
+//top,dut,test ->implementare interfata
