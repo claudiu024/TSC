@@ -14,6 +14,7 @@ module top;
   logic reset_n;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 tb_ifc i_tb_ifc(clk,test_clk);
 // interface_n interface_i2(test_clk);
   // instantiate testbench and connect ports
@@ -33,15 +34,26 @@ interface_n interface_i(clk);
   instr_register_test test (
     interface_i.TEST
 >>>>>>> e80a2e3efdb4b0fae7e852c9018401f7b75dfccb
+=======
+tb_ifc i_tb_ifc(clk,test_clk);
+// interface_n interface_i2(test_clk);
+  // instantiate testbench and connect ports
+  instr_register_test test (
+    i_tb_ifc
+>>>>>>> a7329b9407f7557bcf9af1b9eb8f096b4619c2d3
    );
 
   // instantiate design and connect ports
   instr_register dut (
 <<<<<<< HEAD
+<<<<<<< HEAD
   i_tb_ifc
 =======
   interface_i.DUT
 >>>>>>> e80a2e3efdb4b0fae7e852c9018401f7b75dfccb
+=======
+  i_tb_ifc
+>>>>>>> a7329b9407f7557bcf9af1b9eb8f096b4619c2d3
    );
 
   // clock oscillators
