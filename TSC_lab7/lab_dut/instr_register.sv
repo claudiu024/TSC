@@ -7,17 +7,7 @@
  **********************************************************************/
 
 module instr_register(tb_ifc.DUT tbintf);
- // user-defined types are defined in instr_register_pkg.sv
-/*(input  logic          clk,
- input  logic          load_en,
- input  logic          reset_n,
- input  operand_t      operand_a,
- input  operand_t      operand_b,
- input  opcode_t       opcode,
- input  address_t      write_pointer,
- input  address_t      read_pointer,
- output instruction_t  instruction_word
-);*/
+
   timeunit 1ns/1ns;
   import instr_register_pkg::*; 
   result_t       result;
@@ -36,9 +26,8 @@ module instr_register(tb_ifc.DUT tbintf);
         PASSA : result = tbintf.operand_a;
         PASSB : result = tbintf.operand_b;
         ADD   : result = tbintf.operand_a+tbintf.operand_b;
-        //Error to catch (-)
-        SUB   : result = tbintf.operand_a+tbintf.operand_b;
-        MULT  : result = tbintf.operand_a*tbintf.operand_b;
+        SUB   : result = tbintf.operand_a-tbintf.operand_b;
+        MULT  : result = tbintf.operand_a+tbintf.operand_b;
         DIV   : result = tbintf.operand_a/tbintf.operand_b;
         MOD   : result = tbintf.operand_a%tbintf.operand_b;
 	  endcase

@@ -5,24 +5,16 @@
  * a scoreboard for self-verification.
  **********************************************************************/
 
+
 module instr_register_test
     // user-defined types are defined in instr_register_pkg.sv
   (tb_ifc.TEST tbintf);
- /* (input  logic        test_clk,
-   output logic          load_en,
-   output logic          reset_n,
-   output operand_t      operand_a,
-   output operand_t      operand_b,
-   output opcode_t       opcode,
-   output address_t      write_pointer,
-   output address_t      read_pointer,
-   input  instruction_t  instruction_word
-  );
-*/ 
+
   timeunit 1ns/1ns;
   import instr_register_pkg::*;
  
-  parameter NUMBER_OF_TRANSACTION = 100;
+  parameter NUMBER_OF_TRANSACTION = 10;
+  parameter  random_case=2'b11;
   int seed = 555;
   int number_of_errors = 0;
   instruction_t actual [0:31];
@@ -59,8 +51,12 @@ module instr_register_test
       // the expected values to be read back
 
       //TODO read_pointer random 
+      if(random_case==2'b00 || random_case==2'b10 )
+    
    // @(posedge tbintf) tbintf.read_pointer <= $unsigned($random)%32;
       @(posedge tbintf.test_clk) tbintf.read_pointer <= i; 
+      
+      else @(posedge tbintf.test_clk) tbintf.read_pointer <= $unsigned($random)%32;
       actual[tbintf.read_pointer].result = (tbintf.instruction_word.result);
       @(negedge tbintf.test_clk) print_results; 
       
@@ -69,8 +65,11 @@ module instr_register_test
     @(posedge tbintf.test_clk) ;
     //limitations: just 32 positions/test
     check_results();
-     $display("\nErrors : %d", number_of_errors);
-    if(number_of_errors)   $display("\n TEST FAILLED");
+    
+    if(number_of_errors) begin
+     $display("\nErrors : %d", number_of_errors);  
+    $display("\n TEST FAILLED");
+    end
     else    $display("\n TEST PASSED");
 
     $display("\n***********************************************************");
@@ -94,8 +93,10 @@ module instr_register_test
     tbintf.operand_b     <= $unsigned($random)%16;            // between 0 and 15
     tbintf.opcode        <= opcode_t'($unsigned($random)%8);  // between 0 and 7, cast to opcode_t type
 //TODO write pointer sa ia valori random intre 0 si 31
- // tbintf.tb_cb.write_pointer <= $unsigned($random)%32; 
+//  tbintf.tb_cb.write_pointer <= $unsigned($random)%32; 
+if(random_case==2'b00 || random_case==2'b01 )
     tbintf.write_pointer <= temp++;
+  else tbintf.write_pointer <= $unsigned($random)%32;
     actual[tbintf.write_pointer] = '{tbintf.opcode,tbintf.operand_a,tbintf.operand_b, 'b0};
   endfunction: randomize_transaction
 
@@ -114,7 +115,7 @@ module instr_register_test
     $display("  result = %0d\n", tbintf.instruction_word.result);
   endfunction: print_results
 
-  
+  //iw
   function void check_results();
   foreach(actual[i])begin
      case(actual[i].opc) 
