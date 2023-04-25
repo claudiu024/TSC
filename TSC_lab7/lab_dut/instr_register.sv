@@ -6,48 +6,55 @@
  *
  **********************************************************************/
 
-
-// endinterface //interfacename
-module instr_register
-import instr_register_pkg::*;  // user-defined types are defined in instr_register_pkg.sv
-(tb_ifc.DUT i_tb_ifc
-);
+module instr_register(tb_ifc.DUT tbintf);
+ // user-defined types are defined in instr_register_pkg.sv
+/*(input  logic          clk,
+ input  logic          load_en,
+ input  logic          reset_n,
+ input  operand_t      operand_a,
+ input  operand_t      operand_b,
+ input  opcode_t       opcode,
+ input  address_t      write_pointer,
+ input  address_t      read_pointer,
+ output instruction_t  instruction_word
+);*/
   timeunit 1ns/1ns;
-
+  import instr_register_pkg::*; 
+  result_t       result;
   instruction_t  iw_reg [0:31];  // an array of instruction_word structures
 
   // write to the register
-  always@(posedge i_tb_ifc.clk, negedge i_tb_ifc.reset_n)   // write into register
-    if (!i_tb_ifc.reset_n) begin
+  always@(posedge tbintf.clk, negedge tbintf.reset_n)   // write into register
+    if (!tbintf.reset_n) begin
       foreach (iw_reg[i])
-      iw_reg[i] = '{opc:ZERO,default:0};  // reset to all zeros
+        iw_reg[i] = '{opc:ZERO,default:0};  // reset to all zeros
     end
-    else if (i_tb_ifc.load_en) begin
-
-      case (i_tb_ifc.opcode) 
-
-    ZERO : i_tb_ifc.r = 0 ;
-    PASSA :i_tb_ifc.r =i_tb_ifc.operand_a;
-    PASSB: i_tb_ifc.r=i_tb_ifc.operand_b;
-    ADD: i_tb_ifc.r=i_tb_ifc.operand_a + i_tb_ifc.operand_b;
-    SUB:i_tb_ifc.r=i_tb_ifc.operand_a - i_tb_ifc.operand_b;
-    MULT:i_tb_ifc.r=i_tb_ifc.operand_a * i_tb_ifc.operand_b;
-    DIV:i_tb_ifc.r=i_tb_ifc.operand_a / i_tb_ifc.operand_b;
-    MOD:i_tb_ifc.r=i_tb_ifc.operand_a % i_tb_ifc.operand_b;
-endcase
-
-      iw_reg[i_tb_ifc.write_pointer] = '{i_tb_ifc.opcode,i_tb_ifc.operand_a,i_tb_ifc.operand_b,i_tb_ifc.r};
+    else if (tbintf.load_en) begin
+	//TODO result 
+      case(tbintf.opcode) 
+	  	  ZERO  : result = 'b0;
+        PASSA : result = tbintf.operand_a;
+        PASSB : result = tbintf.operand_b;
+        ADD   : result = tbintf.operand_a+tbintf.operand_b;
+        //Error to catch (-)
+        SUB   : result = tbintf.operand_a+tbintf.operand_b;
+        MULT  : result = tbintf.operand_a*tbintf.operand_b;
+        DIV   : result = tbintf.operand_a/tbintf.operand_b;
+        MOD   : result = tbintf.operand_a%tbintf.operand_b;
+	  endcase
+      iw_reg[tbintf.write_pointer] = '{tbintf.opcode,tbintf.operand_a,tbintf.operand_b,result};
+	 
     end
 
-  // read from the register
-  assign i_tb_ifc.instruction_word = iw_reg[i_tb_ifc.read_pointer];  // continuously read from register
-
-  
+    // read from the register
+     always@(posedge tbintf.clk, negedge tbintf.reset_n)   
+   	   tbintf.instruction_word <= iw_reg[tbintf.read_pointer];
+  // assign tbintf.instruction_word = iw_reg[tbintf.read_pointer];  // continuously read from register
 
 // compile with +define+FORCE_LOAD_ERROR to inject a functional bug for verification to catch
 `ifdef FORCE_LOAD_ERROR
 initial begin
-  force i_tb_ifc.operand_b = i_tb_ifc.operand_a; // cause wrong value to be loaded into operand_b
+  force tbintf.operand_b = tbintf.operand_a; // cause wrong value to be loaded into operand_b
 end
 `endif
 
